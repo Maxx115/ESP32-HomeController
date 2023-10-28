@@ -6,28 +6,23 @@
 *
 */
 
-#ifndef HC_SHUTTER_CONTROL
-#define HC_SHUTTER_CONTROL
+#ifndef HC_SHUTTER_API
+#define HC_SHUTTER_API
 
-/* --------------- INCLUDE SECTION ---------------- */
 #include "self_arduino.hpp"
 
-/* ---------------- DEFINES / CONSTANTs ---------------- */
+#define SHUTTER_TIMER 21000
+
 #define pinShutterUP    32
 #define pinShutterDOWN  25
 #define SHUTTER_OFF HIGH
 #define SHUTTER_ON LOW
 
-struct shutterMsg
-{
-    char dir = '0';
-    uint8_t val = SHUTTER_OFF;
-};
+void shutterInit();
+void initShutter(void);
+void shutterCMD(String direction, String state);
 
-/* ---------------- FUNCTION PROTOTYPES ---------------- */
-void shutterUP(uint8_t status);
-void shutterDOWN(uint8_t status);
-void shutterOFF(void);
-void shutterControl(char dir, uint8_t val);
+void shutterTask(void *pvParameter);
+void vTimerCallback_ShutterOff(TimerHandle_t xShutterOff);
 
-#endif /* HC_SHUTTER_CONTROL */
+#endif /* HC_SHUTTER_API */

@@ -1,7 +1,9 @@
 /* --------------- INCLUDE SECTION ---------------- */
-#include "HC_time_keeper.hpp"
+#include "HC_TIME_KEEPER.hpp"
 
-#include "HC_wifi_server.hpp"
+//#include "HC_wifi_server.hpp"
+#include "HC_SERVER_APPLICATION.hpp"
+#include "HC_WIFI_INTERFACE.hpp"
 #include "time.h"
 
 /* ---------------- DEFINES / CONSTANTs ---------------- */
@@ -74,4 +76,23 @@ String getTimeString(void)
 {
   String string_time = (String(localTime.hour) + ":" + String(localTime.minute));
   return string_time;
+}
+
+/* 
+* Keeps track of time & time-events
+*/
+void timeTask(void *pvParameter)
+{
+  initTime();
+  //vTaskDelay(5000);
+  updateTime();
+  vTaskDelay(60000 - (getTimeSeconds() * 1000));
+  setTimeSeconds(0);
+
+  for(;;)
+  {
+    uptickTime();
+    trackEvent();
+    vTaskDelay(60000);
+  }
 }

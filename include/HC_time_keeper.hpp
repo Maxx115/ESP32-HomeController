@@ -35,4 +35,6 @@ void uptickTime(void);
 void trackEvent(void);
 String getTimeString(void);
 
+void timeTask(void *pvParameter);
+
 #endif /* HC_TIME_KEEPER */

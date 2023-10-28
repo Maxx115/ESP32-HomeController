@@ -2,4 +2,5 @@
 .dist
 .vscode
 include/config.hpp
+include/WIFI_CONFIG.hpp
 lib

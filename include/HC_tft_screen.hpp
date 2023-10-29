@@ -21,7 +21,6 @@
 #define TFT_ROTATION 1
 #define TFT_TEXTSIZE 0
 #define BACKLIGHT_TIMER 5000
-#define SHUTTER_TIMER 21000
 
 /* TFT pin definitions */
 #define AZ_TOUCH_MOD_BIG_TFT 

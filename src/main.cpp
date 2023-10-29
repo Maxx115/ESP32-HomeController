@@ -9,15 +9,20 @@
 /* --------------- INCLUDE SECTION ---------------- */
 #include "self_arduino.hpp"
 
-#include "HC_wifi_init.hpp"
+//#include "HC_wifi_init.hpp"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_task_wdt.h"
 
-#include "HC_wifi_server.hpp"
+//#include "HC_wifi_server.hpp"
+
+#include "HC_SERVER_APPLICATION.hpp"
+#include "HC_WIFI_INTERFACE.hpp"
+#include "HC_SHUTTER_CONTROL.hpp"
+
 #include "HC_tft_screen.hpp"
-#include "HC_shutter_control.hpp"
+//#include "HC_shutter_control.hpp"
 #include "HC_time_keeper.hpp"
 
 /* ---------------- DEFINES / CONSTANTS ---------------- */
@@ -31,20 +36,16 @@ TS_Point touch_point;
 /* ---------------- RTOS FUNCTION DECLARATION SECTION ---------------- */
 void loopTask(void *pvParameters);
 void touchTask(void *pvParameters);
-void shutterTask(void *pvParameter);
-void timeTask(void *pvParameter);
 
 /* ---------------- TIMER FUNCTION DECLARATION SECTION ---------------- */
 void vTimerCallback_AutoScreenOff(TimerHandle_t xAutoOffScreen_timer);
-void vTimerCallback_ShutterOff(TimerHandle_t xShutterOff_timer);
 
 /* ---------------- RTOS TIMER DECLARATION SECTION ---------------- */
 TimerHandle_t xAutoOffScreen_timer;
-TimerHandle_t xShutterOff_timer;
 
 /* ---------------- RTOS QUEUE DECLARATION SECTION ---------------- */
-QueueHandle_t xQueueShutter;
-shutterMsg sMsg_rx;
+//QueueHandle_t xQueueShutter;
+//shutterMsg sMsg_rx;
 
 /* ---------------- RTOS SETUP SECTION ---------------- */
 #ifndef CONFIG_ARDUINO_LOOP_STACK_SIZE
@@ -64,22 +65,16 @@ extern "C" void app_main()
     /* Timer Setup */
     xAutoOffScreen_timer = xTimerCreate("AutoScreenOff", BACKLIGHT_TIMER, pdFALSE, ( void *) 0, vTimerCallback_AutoScreenOff);
     xTimerStart(xAutoOffScreen_timer, 0);
-    xShutterOff_timer = xTimerCreate("ShutterOff", SHUTTER_TIMER, pdFALSE, ( void *) 0, vTimerCallback_ShutterOff);
-    xTimerStart(xShutterOff_timer, 0);
-
-    /* Queue Setup */
-    sMsg_rx.dir = '0';
-    sMsg_rx.val = SHUTTER_OFF;
-    xQueueShutter = xQueueCreate(1, sizeof(shutterMsg));
 
     /* main setup */
-    initWifi();
-    initServer();
-    initQueue(xQueueShutter);
+    shutterInit();
+    wifiInit();
+    serverInit();
+    //initQueue(xQueueShutter);
     //initTFT(&tft, &touch, TFT_ROTATION, TFT_TEXTSIZE, ILI9341_BLACK, FreeSansBold9pt7b);
 
     /* Task Setup & Startup */
-    //xTaskCreateUniversal(loopTask, "loopTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
+    xTaskCreateUniversal(loopTask, "loopTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
     //xTaskCreateUniversal(touchTask, "touchTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &touchTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
     xTaskCreateUniversal(shutterTask, "shutterTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &shutterTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
     xTaskCreateUniversal(timeTask, "timeTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &timeTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
@@ -92,9 +87,30 @@ extern "C" void app_main()
 */
 void loopTask(void *pvParameters)
 {
+  const int PIN_TO_SENSOR = 27;
+  int pinStateCurrent = LOW;
+  int pinStatePrevious = LOW;
+
+  Serial.begin(9600);
+  Serial.println("Serial connected.");
+
+  pinMode(PIN_TO_SENSOR, INPUT);
+
   for(;;)
   {
-    vTaskDelay(1000);  
+    pinStatePrevious = pinStateCurrent;
+    pinStateCurrent = digitalRead(PIN_TO_SENSOR);
+
+    if(pinStatePrevious == LOW && pinStateCurrent == HIGH)
+    {
+      Serial.println("Motion Detected!");
+    }
+    else if(pinStatePrevious == HIGH && pinStateCurrent == LOW)
+    {
+      Serial.println("Motion Stopped!");
+    }
+
+    vTaskDelay(10);
   }
 }
 
@@ -105,7 +121,7 @@ void loopTask(void *pvParameters)
 void touchTask(void *pvParameters)
 {
   /* Print Start Screen */
-  tft_printStartScreen(&tft, getIPAddress());
+  //tft_printStartScreen(&tft, getIPHC());
 
   for(;;)
   {
@@ -128,48 +144,9 @@ void touchTask(void *pvParameters)
   }
 }
 
-/* 
-* Receives commands to drive shutter up / down 
-*/
-void shutterTask(void *pvParameter)
-{
-  for(;;)
-  {
-    xQueueReceive(xQueueShutter, &sMsg_rx, portMAX_DELAY);
-    shutterControl(sMsg_rx.dir, sMsg_rx.val);
-    xTimerStart(xShutterOff_timer, 0);
-  }
-}
-
-/* 
-* Keeps track of time & time-events
-*/
-void timeTask(void *pvParameter)
-{
-  initTime();
-  //vTaskDelay(5000);
-  updateTime();
-  vTaskDelay(60000 - (getTimeSeconds() * 1000));
-  setTimeSeconds(0);
-
-  for(;;)
-  {
-    uptickTime();
-    trackEvent();
-    vTaskDelay(60000);
-  }
-}
-
 /* ---------------- TIMER FUNCTION SECTION ---------------- */
 
 void vTimerCallback_AutoScreenOff(TimerHandle_t xAutoOffScreen_timer)
 {
   digitalWrite(TFT_LED, TFT_LED_OFF);
 }
-
-void vTimerCallback_ShutterOff(TimerHandle_t xShutterOff_timer)
-{
-  shutterOFF();
-}
-
-

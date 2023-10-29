@@ -6,11 +6,11 @@
 #include "WiFi.h"
 #include <ArduinoHttpClient.h>
 
-IPAddress local_IP(192, 168, 0, 200);
-IPAddress gateway(192, 168, 0, 1);
-IPAddress subnet(255, 255, 255, 0);
-IPAddress dns(192, 168, 0, 90);
-String hostname = "ESP32_Home_Controller";
+IPAddress local_IP(HC_IP_DEVICE);
+IPAddress gateway(HC_IP_GATEWAX);
+IPAddress subnet(HC_IP_SUBNET);
+IPAddress dns(HC_IP_DNS);
+String hostname = HOSTNAME;
 
 WiFiUDP UDP;
 WakeOnLan WOL(UDP);
@@ -63,11 +63,5 @@ void sendClientRequest(String ipAdress, String clientGet)
 
 void loopback_request(String request)
 {
-    WiFiClient wifi;
-    char serverAddress[] = "192.168.0.200";
-    HttpClient client = HttpClient(wifi, serverAddress);
-    client.get(request);
-    client.beginRequest();
-    client.endRequest();
-    client.stop();
+    sendClientRequest("192.168.0.200", request);
 }

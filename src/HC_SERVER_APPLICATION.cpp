@@ -1,5 +1,6 @@
 #include "HC_SERVER_APPLICATION.hpp"
 
+#include "HC_DEVICES.hpp"
 #include "HC_SHUTTER_CONTROL.hpp"
 #include "HC_WIFI_INTERFACE.hpp"
 
@@ -30,7 +31,7 @@ String siteProcess(const String& var)
   else if(var == "VERSION")
   {
     statement = "server version: ";
-    statement += "0.0.2";
+    statement += "0.0.3";
   }
 
   return statement;
@@ -86,23 +87,23 @@ void serverInit()
             
             if(inputMessage1 == "printer")
             {
-                sendClientRequest("192.168.0.34", "/?m=1&o=1");
+                sendClientRequest(TASMOTA_PRINTER, TASMOTA_POWER_1 + TASMOTA_TOGGLE);
             }
             else if(inputMessage1 == "bcpu")
             {
-                sendClientRequest("192.168.0.23", "/?m=1&o=1");
+                sendClientRequest(TASMOTA_BCPU, TASMOTA_POWER_1 + TASMOTA_TOGGLE);
             }
             else if(inputMessage1 == "globe")
             {
-                sendClientRequest("192.168.0.23", "/?m=1&o=2");
+                sendClientRequest(TASMOTA_GLOBE, TASMOTA_POWER_2 + TASMOTA_TOGGLE);
             }
             else if(inputMessage1 == "night_lamp")
             {
-                sendClientRequest("192.168.0.35", "/?m=1&o=1");
+                sendClientRequest(TASMOTA_NIGHTLAMP, TASMOTA_POWER_1 + TASMOTA_TOGGLE);
             }
             else if(inputMessage1 == "desk_lamp")
             {
-                sendClientRequest("192.168.0.33", "/?m=1&o=1");
+                sendClientRequest(TASMOTA_DESKLAMP, TASMOTA_POWER_1 + TASMOTA_TOGGLE);
             }
         }
 

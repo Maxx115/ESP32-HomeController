@@ -74,7 +74,7 @@ extern "C" void app_main()
     //initTFT(&tft, &touch, TFT_ROTATION, TFT_TEXTSIZE, ILI9341_BLACK, FreeSansBold9pt7b);
 
     /* Task Setup & Startup */
-    //xTaskCreateUniversal(loopTask, "loopTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
+    xTaskCreateUniversal(loopTask, "loopTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
     //xTaskCreateUniversal(touchTask, "touchTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &touchTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
     xTaskCreateUniversal(shutterTask, "shutterTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &shutterTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
     xTaskCreateUniversal(timeTask, "timeTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &timeTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
@@ -87,9 +87,30 @@ extern "C" void app_main()
 */
 void loopTask(void *pvParameters)
 {
+  const int PIN_TO_SENSOR = 27;
+  int pinStateCurrent = LOW;
+  int pinStatePrevious = LOW;
+
+  Serial.begin(9600);
+  Serial.println("Serial connected.");
+
+  pinMode(PIN_TO_SENSOR, INPUT);
+
   for(;;)
   {
-    vTaskDelay(1000);  
+    pinStatePrevious = pinStateCurrent;
+    pinStateCurrent = digitalRead(PIN_TO_SENSOR);
+
+    if(pinStatePrevious == LOW && pinStateCurrent == HIGH)
+    {
+      Serial.println("Motion Detected!");
+    }
+    else if(pinStatePrevious == HIGH && pinStateCurrent == LOW)
+    {
+      Serial.println("Motion Stopped!");
+    }
+
+    vTaskDelay(10);
   }
 }
 

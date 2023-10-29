@@ -1,7 +1,7 @@
 /* --------------- INCLUDE SECTION ---------------- */
 #include "HC_TIME_KEEPER.hpp"
 
-//#include "HC_wifi_server.hpp"
+#include "HC_DEVICES.hpp"
 #include "HC_SERVER_APPLICATION.hpp"
 #include "HC_WIFI_INTERFACE.hpp"
 #include "time.h"
@@ -17,10 +17,12 @@ timeStruct localTime;
 
 void initTime()
 {
-  const char* ntpServer = "pool.ntp.org";
-  const long gmtOffset_sec = 3600;
-  const int daylightOffset_sec = 3600;
+  const char* ntpServer = "ptbtime1.ptb.de";
+  const long gmtOffset_sec = 0;
+  const int daylightOffset_sec = 0;
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);
+  tzset();
 }
 
 void updateTime(void)
@@ -57,7 +59,7 @@ void uptickTime(void)
   if(localTime.minute == 0)
   {
     localTime.hour = (localTime.hour + 1) % 24;
-    if(localTime.hour == 0)
+    if(localTime.hour == 4)
     {
       updateTime();
     }
@@ -68,8 +70,22 @@ void trackEvent(void)
 {
   if(localTime.hour == 5 && localTime.minute == 0)
   {
-    loopback_request("/plug?item=night_lamp");
+    sendClientRequest(TASMOTA_NIGHTLAMP, TASMOTA_POWER_1 + TASMOTA_ON);
+    sendClientRequest(TASMOTA_NIGHTLAMP, TASMOTA_POWER_1 + TASMOTA_BLINK);
   }
+  else if(localTime.hour == 11 && localTime.minute == 0)
+  {
+    sendClientRequest(TASMOTA_NIGHTLAMP, TASMOTA_POWER_1 + TASMOTA_OFF);
+  }
+  else if(localTime.hour == 16 && localTime.minute == 0)
+  {
+    sendClientRequest(TASMOTA_DESKLAMP, TASMOTA_POWER_1 + TASMOTA_ON);
+  }
+  else if(localTime.hour == 20 && localTime.minute == 0)
+  {
+    sendClientRequest(TASMOTA_DESKLAMP, TASMOTA_POWER_1 + TASMOTA_OFF);
+  }
+
 }
 
 String getTimeString(void)
@@ -84,7 +100,6 @@ String getTimeString(void)
 void timeTask(void *pvParameter)
 {
   initTime();
-  //vTaskDelay(5000);
   updateTime();
   vTaskDelay(60000 - (getTimeSeconds() * 1000));
   setTimeSeconds(0);

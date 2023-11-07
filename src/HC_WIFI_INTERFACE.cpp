@@ -50,18 +50,35 @@ void wakeMyPC()
   WOL.sendMagicPacket(MAC_DESKTOP_CONFIG);
 }
 
-void sendClientRequest(String ipAdress, String clientGet)
+String sendClientRequest(String ipAdress, String clientGet, boolean getBody)
 {
+    String body = "";
     WiFiClient wifi;
     HttpClient client = HttpClient(wifi, ipAdress);
 
     client.get(clientGet);
-    client.beginRequest();
-    client.endRequest();
+    if(getBody)
+    {
+      client.responseStatusCode();
+      body = client.responseBody();
+    }
     client.stop();
+
+    return body;
+}
+
+String sendDeviceRequest(tasmota_device device, String clientGet, boolean getBody)
+{
+  sendQueueStatusRequest(device);
+  return sendClientRequest(device.ip, device.power + clientGet, getBody);
+}
+
+String sendDeviceStatusRequest(tasmota_device device)
+{
+  return sendClientRequest(device.ip, device.power, true);
 }
 
 void loopback_request(String request)
 {
-    sendClientRequest("192.168.0.200", request);
+    sendClientRequest(HC_IP_DEVICE_STR, request);
 }

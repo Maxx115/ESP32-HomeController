@@ -20,6 +20,8 @@
 #include "HC_SERVER_APPLICATION.hpp"
 #include "HC_WIFI_INTERFACE.hpp"
 #include "HC_SHUTTER_CONTROL.hpp"
+#include "HC_MOTION_CONTROL.hpp"
+#include "HC_DEVICES.hpp"
 
 #include "HC_tft_screen.hpp"
 //#include "HC_shutter_control.hpp"
@@ -53,7 +55,9 @@ TimerHandle_t xAutoOffScreen_timer;
 #endif
 TaskHandle_t loopTaskHandle = NULL;
 TaskHandle_t touchTaskHandle = NULL;
+TaskHandle_t deviceTaskHandle = NULL;
 TaskHandle_t shutterTaskHandle = NULL;
+TaskHandle_t motionTaskHandle = NULL;
 TaskHandle_t timeTaskHandle = NULL;
 bool loopTaskWDTEnabled;
 
@@ -70,13 +74,14 @@ extern "C" void app_main()
     shutterInit();
     wifiInit();
     serverInit();
-    //initQueue(xQueueShutter);
     //initTFT(&tft, &touch, TFT_ROTATION, TFT_TEXTSIZE, ILI9341_BLACK, FreeSansBold9pt7b);
 
     /* Task Setup & Startup */
-    xTaskCreateUniversal(loopTask, "loopTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
+    //xTaskCreateUniversal(loopTask, "loopTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
     //xTaskCreateUniversal(touchTask, "touchTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &touchTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
+    xTaskCreateUniversal(deviceTask, "deviceTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &deviceTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
     xTaskCreateUniversal(shutterTask, "shutterTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &shutterTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
+    xTaskCreateUniversal(motionTask, "motionTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &motionTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
     xTaskCreateUniversal(timeTask, "timeTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &timeTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
 }
 
@@ -87,30 +92,9 @@ extern "C" void app_main()
 */
 void loopTask(void *pvParameters)
 {
-  const int PIN_TO_SENSOR = 27;
-  int pinStateCurrent = LOW;
-  int pinStatePrevious = LOW;
-
-  Serial.begin(9600);
-  Serial.println("Serial connected.");
-
-  pinMode(PIN_TO_SENSOR, INPUT);
-
   for(;;)
   {
-    pinStatePrevious = pinStateCurrent;
-    pinStateCurrent = digitalRead(PIN_TO_SENSOR);
-
-    if(pinStatePrevious == LOW && pinStateCurrent == HIGH)
-    {
-      Serial.println("Motion Detected!");
-    }
-    else if(pinStatePrevious == HIGH && pinStateCurrent == LOW)
-    {
-      Serial.println("Motion Stopped!");
-    }
-
-    vTaskDelay(10);
+    vTaskDelay(1000);
   }
 }
 

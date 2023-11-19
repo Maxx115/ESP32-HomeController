@@ -60,6 +60,8 @@ extern tasmota_device GLOBE;
 extern tasmota_device NIGHTLAMP;
 extern tasmota_device DESKLAMP;
 
+String getTasmotaStatus(String body);
+
 String requestDeviceStatus(tasmota_device device);
 void requestAllStatus();
 

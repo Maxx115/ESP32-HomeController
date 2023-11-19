@@ -9,6 +9,12 @@
 /* --------------- INCLUDE SECTION ---------------- */
 #include "self_arduino.hpp"
 
+#define UNIT_TEST true
+
+#if UNIT_TEST
+#include "test/test_main.hpp"
+#endif
+
 //#include "HC_wifi_init.hpp"
 
 #include "freertos/FreeRTOS.h"
@@ -65,6 +71,10 @@ extern "C" void app_main()
 {
     loopTaskWDTEnabled = false;
     initArduino();
+
+    #ifdef UNIT_TEST
+    test_main();
+    #endif
 
     /* Timer Setup */
     xAutoOffScreen_timer = xTimerCreate("AutoScreenOff", BACKLIGHT_TIMER, pdFALSE, ( void *) 0, vTimerCallback_AutoScreenOff);

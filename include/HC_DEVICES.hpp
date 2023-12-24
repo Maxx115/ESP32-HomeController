@@ -60,12 +60,14 @@ extern tasmota_device GLOBE;
 extern tasmota_device NIGHTLAMP;
 extern tasmota_device DESKLAMP;
 
+void init_deviceTask(int queSize);
+
 String getTasmotaStatus(String body);
 
 String requestDeviceStatus(tasmota_device device);
-void requestAllStatus();
+bool requestAllStatus(void);
 
-void sendQueueStatusRequest(tasmota_device device);
+BaseType_t sendQueueStatusRequest(tasmota_device device);
 void deviceTask(void *pvParameter);
 
 #endif /* HC_DEVICES_H */

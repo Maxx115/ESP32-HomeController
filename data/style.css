@@ -17,8 +17,21 @@ input[type=text]{
   color: #ffffff;
   background-color: #000000;
   width: 200px;
-  text-align: center;
+  text-align: left;
 }
+.SSID{
+  color: #ffffff;
+  background-color: #000000;
+  width: 100px;
+  text-align: left;
+}
+input[type=password]{
+  color: #ffffff;
+  background-color: #000000;
+  width: 100px;
+  text-align: left;
+}
+
 
 .flex-container
 {
@@ -44,6 +57,10 @@ input[type=text]{
   flex: 1;
 }
 .container-shutter_toggle
+{
+  flex: 1;
+}
+.container-Connect
 {
   flex: 1;
 }
@@ -129,6 +146,15 @@ input[type=text]{
   color: white;
 }
 
+.connect_button {
+  border: 2px solid #b30000;
+  padding: 8px 16px;
+}
+.connect_button:hover {
+  background-color: #b30000;
+  color: white;
+}
+
 .shutterUP_switch {position: relative; display: inline-block; width: 120px; height: 68px} 
 .shutterUP_switch input {display: none}
 .shutterUP_slider {position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 6px}
@@ -177,11 +203,6 @@ input:checked+.activeTimeSelect_slider:before {-webkit-transform: translateX(cal
 .closebtn:hover {
   color: black;
 }
-
-
-
-
-
 
 /*basic reset */
 *{

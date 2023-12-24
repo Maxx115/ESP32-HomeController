@@ -15,9 +15,11 @@ String hostname = HOSTNAME;
 WiFiUDP UDP;
 WakeOnLan WOL(UDP);
 
-void wifiInit(void)
+bool wifiInit(void)
 {
-  if(!WiFi.config(local_IP, gateway, subnet, dns))
+  bool wifiReturn = WiFi.config(local_IP, gateway, subnet, dns);
+  
+  if(!wifiReturn)
   {
     //Serial.println("STA failed to configure");
   }
@@ -43,6 +45,8 @@ void wifiInit(void)
   //Serial.print("RRSI: ");
   //Serial.println(WiFi.RSSI());
   //Serial.println("Wifi-Setup done.");
+
+  return wifiReturn;
 }
 
 void wakeMyPC() 

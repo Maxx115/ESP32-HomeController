@@ -75,6 +75,8 @@ class Tester
         else
         {
             result = "FAILURE ❌";
+            result += "\nstatement_1 = " + String(statement_1);
+            result += "\nstatement_2 = " + String(statement_2);
             ret = false;
         }
 

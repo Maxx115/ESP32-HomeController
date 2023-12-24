@@ -1,6 +1,11 @@
 #include "HC_DEVICES.hpp"
 
+#if UNIT_TEST==1
+#include "test/test_HC_DEVICES/test_HC_DEVICE.hpp"
+#define sendDeviceStatusRequest(device) stub_sendDeviceStatusRequest(device)
+#else
 #include "HC_WIFI_INTERFACE.hpp"
+#endif
 
 tasmota_device PRINTER = {PRINTER_ID, TASMOTA_IP_PRINTER, TASMOTA_POWER_1, "UNKNOWN", MOTION_INACTIVE};
 tasmota_device BCPU = {BCPU_ID, TASMOTA_IP_BCPU_GLOBE, TASMOTA_POWER_1, "UNKNOWN", MOTION_INACTIVE};
@@ -10,6 +15,8 @@ tasmota_device DESKLAMP = {DESKLAMP_ID, TASMOTA_IP_DESKLAMP, TASMOTA_POWER_1, "U
 
 QueueHandle_t xQueueStatusRequest;
 device_id queueDevice_id;
+
+#define DEFAULT_QUEUE_SIZE 20
 
 String getTasmotaStatus(String body)
 {
@@ -33,24 +40,39 @@ String requestDeviceStatus(tasmota_device device)
     return getTasmotaStatus(body);
 }
 
-void requestAllStatus()
+bool requestAllStatus(void)
 {
-    PRINTER.status = requestDeviceStatus(PRINTER);
-    BCPU.status = requestDeviceStatus(BCPU);
-    GLOBE.status = requestDeviceStatus(GLOBE);
-    NIGHTLAMP.status = requestDeviceStatus(NIGHTLAMP);
-    DESKLAMP.status = requestDeviceStatus(DESKLAMP);    
+    String checkReturn = "";
+    bool ret = false;
+
+    checkReturn += PRINTER.status = requestDeviceStatus(PRINTER);
+    checkReturn += BCPU.status = requestDeviceStatus(BCPU);
+    checkReturn += GLOBE.status = requestDeviceStatus(GLOBE);
+    checkReturn += NIGHTLAMP.status = requestDeviceStatus(NIGHTLAMP);
+    checkReturn += DESKLAMP.status = requestDeviceStatus(DESKLAMP);
+
+    if(checkReturn.indexOf("ERROR") < 0)
+    {
+        ret = true;
+    }
+
+    return ret;
 }
 
-void sendQueueStatusRequest(tasmota_device device)
+void init_deviceTask(int queSize)
+{
+    xQueueStatusRequest = xQueueCreate(queSize, sizeof(queueDevice_id));
+}
+
+BaseType_t sendQueueStatusRequest(tasmota_device device)
 {
     queueDevice_id = device.id;
-    xQueueSend(xQueueStatusRequest, (void *) &queueDevice_id, 0);
+    return xQueueSend(xQueueStatusRequest, (void *) &queueDevice_id, 0);
 }
 
 void deviceTask(void *pvParameter)
 {
-    xQueueStatusRequest = xQueueCreate(20, sizeof(queueDevice_id));
+    init_deviceTask(DEFAULT_QUEUE_SIZE);
     vTaskDelay(10000);
     requestAllStatus();
 

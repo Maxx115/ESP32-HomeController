@@ -9,9 +9,9 @@
 /* --------------- INCLUDE SECTION ---------------- */
 #include "self_arduino.hpp"
 
-#define UNIT_TEST true
+// #define UNIT_TEST true
 
-#if UNIT_TEST
+#if UNIT_TEST==1
 #include "test/test_main.hpp"
 #endif
 
@@ -72,7 +72,7 @@ extern "C" void app_main()
     loopTaskWDTEnabled = false;
     initArduino();
 
-    #ifdef UNIT_TEST
+    #if UNIT_TEST==1
     test_main();
     #endif
 

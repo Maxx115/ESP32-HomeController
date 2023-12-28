@@ -6,52 +6,55 @@
 #include "WiFi.h"
 #include <ArduinoHttpClient.h>
 
-IPAddress local_IP(HC_IP_DEVICE);
-IPAddress gateway(HC_IP_GATEWAX);
-IPAddress subnet(HC_IP_SUBNET);
-IPAddress dns(HC_IP_DNS);
-String hostname = HOSTNAME;
+
 
 WiFiUDP UDP;
 WakeOnLan WOL(UDP);
 
-bool wifiInit(void)
+wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subnet[], uint8_t ip_dns[], String hostname, String ssid, String password)
 {
-  bool wifiReturn = WiFi.config(local_IP, gateway, subnet, dns);
-  
-  if(!wifiReturn)
+  IPAddress ipAddress_device(ip_device);
+  IPAddress ipAddress_gateway(ip_gateway);
+  IPAddress ipAddress_subnet(ip_subnet);
+  IPAddress ipAddress_dns(ip_dns);
+
+  wl_status_t wifiReturn = WL_DISCONNECTED;
+
+  if(!WiFi.config(ipAddress_device, ipAddress_gateway, ipAddress_subnet, ipAddress_dns))
   {
     //Serial.println("STA failed to configure");
   }
   else
   {
     WiFi.setHostname(hostname.c_str());
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid.c_str(), password.c_str());
+    
+    for(int i = 0; (i < 50) && (WiFi.status() != WL_CONNECTED); i++)
+    {
+      delay(100);
+    }
+    wifiReturn = WiFi.status();
+
+    if(wifiReturn == WL_CONNECTED)
+    {
+      WOL.calculateBroadcastAddress(WiFi.localIP(), WiFi.subnetMask());
+    }
   }
-
-  WiFi.mode(WIFI_STA);
-
-  WiFi.begin(SSID_CONFIG, PASSWORD_CONFIG);
-  //Serial.print("Connecting to ");
-  //Serial.print(ssid);
-
-  while(WiFi.status() != WL_CONNECTED)
-  {
-    //Serial.print('.');
-    delay(1000);
-  }  
-  WOL.calculateBroadcastAddress(WiFi.localIP(), WiFi.subnetMask());
-
-  //Serial.println(WiFi.localIP());
-  //Serial.print("RRSI: ");
-  //Serial.println(WiFi.RSSI());
-  //Serial.println("Wifi-Setup done.");
 
   return wifiReturn;
 }
 
-void wakeMyPC() 
+bool wakeMyPC() 
 {
-  WOL.sendMagicPacket(MAC_DESKTOP_CONFIG);
+  bool retValue = false;
+
+  if(WiFi.status() == WL_CONNECTED)
+  {
+    retValue = WOL.sendMagicPacket(MAC_DESKTOP_CONFIG);
+  }
+  
+  return retValue;
 }
 
 String sendClientRequest(String ipAdress, String clientGet, boolean getBody)
@@ -84,5 +87,5 @@ String sendDeviceStatusRequest(tasmota_device device)
 
 void loopback_request(String request)
 {
-    sendClientRequest(HC_IP_DEVICE_STR, request);
+  
 }

@@ -9,8 +9,6 @@
 /* --------------- INCLUDE SECTION ---------------- */
 #include "self_arduino.hpp"
 
-// #define UNIT_TEST true
-
 #if UNIT_TEST==1
 #include "test/test_main.hpp"
 #endif
@@ -74,7 +72,7 @@ extern "C" void app_main()
 
     #if UNIT_TEST==1
     test_main();
-    #endif
+    #else
 
     /* Timer Setup */
     xAutoOffScreen_timer = xTimerCreate("AutoScreenOff", BACKLIGHT_TIMER, pdFALSE, ( void *) 0, vTimerCallback_AutoScreenOff);
@@ -93,6 +91,8 @@ extern "C" void app_main()
     xTaskCreateUniversal(shutterTask, "shutterTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &shutterTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
     xTaskCreateUniversal(motionTask, "motionTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &motionTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
     xTaskCreateUniversal(timeTask, "timeTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &timeTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
+
+  #endif
 }
 
 /* ---------------- RTOS TASK SECTION ---------------- */

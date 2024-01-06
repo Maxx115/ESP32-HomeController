@@ -11,7 +11,7 @@
 
 #include "self_arduino.hpp"
 #include "HC_DEVICES.hpp"
-#include <EEPROM.h>
+//#include <EEPROM.h>
 
 
 

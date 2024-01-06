@@ -5,6 +5,9 @@
 
 #include "HC_SUN_TIME.hpp"
 
+#include "time.h"
+#include "HC_TIME_KEEPER.hpp"
+
 /*
 Calculations to implement:
 
@@ -24,8 +27,33 @@ j_rise = j_transit - w_0 / 360°
 j_set = j_transit + w_0 / 360°
 */
 
+void testing_get_j_rise(void);
+
 void test_HC_SUN_TIME(void)
 {
-    
+    testing_get_j_rise();
 }
 
+void testing_get_j_rise(void)
+{
+    struct tm timeinfo;
+    const char* ntpServer = "ptbtime1.ptb.de";
+    const long gmtOffset_sec = 0;
+    const int daylightOffset_sec = 0;
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);
+    tzset();
+    timeinfo.tm_hour = 0;
+    timeinfo.tm_min = 0;
+    timeinfo.tm_sec = 0;
+    timeinfo.tm_year = 2024 - 1900;
+    timeinfo.tm_mon = 01;
+    timeinfo.tm_mday = 07;
+
+    struct geolocation testLocation;
+    
+    Tester test_unit_getTasmotaStatus("test_unit_get_j_rise", "Returns the time of sunrise for date & geolocation");
+    test_unit_getTasmotaStatus.begin();
+    test_unit_getTasmotaStatus.tester_assert(get_suntimes(&timeinfo, &testLocation).tm_hour, 06);
+    test_unit_getTasmotaStatus.end();
+}

@@ -9,6 +9,8 @@
 /* ---------------- DEFINES / CONSTANTs ---------------- */
 timeStruct localTime;
 
+/* https://ipinfo.io/json */
+
 /* ---------------- LOCAL VARIABLE SECTION ---------------- */
 
 /* ---------------- HELP FUNCTION SECTION ---------------- */

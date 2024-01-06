@@ -60,28 +60,40 @@ class Tester
         test_status = ENDED;
     }
 
-    template <typename T, typename U>
-    bool tester_assert(T statement_1, U statement_2)
+    String retMessage(String statement_1, String statement_2, bool statement_result)
     {
-        assert_calls += 1;
         String result = "";
-        bool ret = false;
 
-        if(statement_1 == statement_2)
+        if(statement_result)
         {
             result = "SUCCESS ✔";
-            ret = true;
         }
         else
         {
             result = "FAILURE ❌";
-            result += "\nstatement_1 = " + String(statement_1);
-            result += "\nstatement_2 = " + String(statement_2);
-            ret = false;
+            result += "\nstatement_1 = " + (statement_1);
+            result += "\nstatement_2 = " + (statement_2);
         }
+        result = test_name + " finished with: " + result;
+        Serial.println(result);
 
-        Serial.println(test_name + " finished with: " + result);
+        return result;
+    }
+
+    template <typename T, typename U, typename Compare = std::function<bool(T, U)>>
+    bool tester_assert(T statement_1, U statement_2, Compare compare = [](T statement_1, U statement_2) { return statement_1 == statement_2; })
+    {
+        assert_calls += 1;
+        bool ret = compare(statement_1 ,statement_2);
+
+        retMessage(String(statement_1), String(statement_2), ret);
+
         return ret;
+    }
+    template <typename T, typename U>
+    bool tester_assert_not(T statement_1, U statement_2)
+    {
+        return tester_assert(statement_1, statement_2, [](T statement_1, U statement_2) { return statement_1 != statement_2; });
     }
 
     String getTestName()

@@ -42,6 +42,7 @@ def calc(
     log.debug(f'Latitude               f       = {_deg2human(f)}')
     log.debug(f'Longitude              l_w     = {_deg2human(l_w)}')
     log.debug(f'Now                    ts      = {_ts2human(current_timestamp, debugtz)}')
+    log.debug(f'Now                    ts      = {current_timestamp}')
 
     J_date = ts2j(current_timestamp)
     log.debug(f'Julian date            j_date  = {J_date:.3f} days')
@@ -87,7 +88,15 @@ def calc(
 
     # Solar transit (julian date)
     J_transit = 2451545.0 + J_ + 0.0053 * sin(M_radians) - 0.0069 * sin(2 * Lambda_radians)
+    test_1 = 0.0069 * sin(2 * Lambda_radians)
+    test_2 = 0.0053 * sin(M_radians)
+    test_3 = 2451545.0 + J_
     log.debug(f'Solar transit time     J_trans = {_j2human(J_transit, debugtz)}')
+    log.debug(f'Solar transit time     J_trans = {J_transit}')
+    log.debug(f'Solar transit time     test_1 = {test_1}')
+    log.debug(f'Solar transit time     test_2 = {test_2}')
+    log.debug(f'Solar transit time     test_3 = {test_3}')
+    log.debug(f'Solar transit time     J_ = {J_}')
 
     # Declination of the Sun
     sin_d = sin(Lambda_radians) * sin(radians(23.4397))
@@ -109,6 +118,8 @@ def calc(
     j_set = J_transit + w0_degrees / 360
 
     log.debug(f'Sunrise                j_rise  = {_j2human(j_rise, debugtz)}')
+    log.debug(f'Sunrise                j_rise  = {j2ts(j_rise)}')
+    log.debug(f'Sunrise                j_rise  = {(j_rise)}')
     log.debug(f'Sunset                 j_set   = {_j2human(j_set, debugtz)}')
     log.debug(f'Day length                       {w0_degrees / (180 / 24):.3f} hours')
 

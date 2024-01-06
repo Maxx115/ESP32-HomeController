@@ -1,0 +1,9 @@
+
+#ifndef TEST_HC_SHUTTER_CONTROL
+#define TEST_HC_SHUTTER_CONTROL
+
+#include "HC_SHUTTER_CONTROL.hpp"
+
+void test_HC_SHUTTER_CONTROL(void);
+
+#endif /* TEST_HC_SHUTTER_CONTROL */

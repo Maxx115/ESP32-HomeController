@@ -26,6 +26,14 @@ struct timeStruct
   int day;
 };
 
+struct geolocation
+{
+  long longitude = 13.404954;
+  char longitude_dir = 'N';
+  long latitude =  52.520008;
+  char latitude_dir = 'E';
+};
+
 /* ---------------- FUNCTION PROTOTYPES ---------------- */
 void initTime();
 void updateTime(void);

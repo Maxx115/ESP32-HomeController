@@ -31,7 +31,7 @@ String siteProcess(const String& var)
   else if(var == "VERSION")
   {
     statement = "server version: ";
-    statement += "0.0.3";
+    statement += "0.0.5";
   }
 
   return statement;
@@ -79,6 +79,7 @@ void serverInit()
     */
     server.on("/plug", HTTP_GET, [] (AsyncWebServerRequest *request) 
     {
+        request->send(200, "text/plain", "OK");
         String inputMessage1;
 
         if(request->hasParam("item"))
@@ -87,27 +88,36 @@ void serverInit()
             
             if(inputMessage1 == "printer")
             {
-                sendClientRequest(TASMOTA_PRINTER, TASMOTA_POWER_1 + TASMOTA_TOGGLE);
+                sendDeviceRequest(PRINTER, TASMOTA_TOGGLE);
             }
             else if(inputMessage1 == "bcpu")
             {
-                sendClientRequest(TASMOTA_BCPU, TASMOTA_POWER_1 + TASMOTA_TOGGLE);
+                sendDeviceRequest(BCPU, TASMOTA_TOGGLE);
             }
             else if(inputMessage1 == "globe")
             {
-                sendClientRequest(TASMOTA_GLOBE, TASMOTA_POWER_2 + TASMOTA_TOGGLE);
+                sendDeviceRequest(GLOBE, TASMOTA_TOGGLE);
             }
             else if(inputMessage1 == "night_lamp")
             {
-                sendClientRequest(TASMOTA_NIGHTLAMP, TASMOTA_POWER_1 + TASMOTA_TOGGLE);
+                sendDeviceRequest(NIGHTLAMP, TASMOTA_TOGGLE);
             }
             else if(inputMessage1 == "desk_lamp")
             {
-                sendClientRequest(TASMOTA_DESKLAMP, TASMOTA_POWER_1 + TASMOTA_TOGGLE);
+                if(DESKLAMP.status == "OFF") 
+                {
+                    DESKLAMP.status = "ON";
+                    DESKLAMP.motion = true;
+                }
+                else if(DESKLAMP.status == "ON")
+                {
+                    DESKLAMP.status = "OFF";
+                    DESKLAMP.motion = false;
+                }
+
+                sendDeviceRequest(DESKLAMP, TASMOTA_TOGGLE);
             }
         }
-
-        request->send(200, "text/plain", "OK");
     });
 
     /*

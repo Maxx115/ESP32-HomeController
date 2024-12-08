@@ -1,67 +1,95 @@
 #include "HC_WIFI_INTERFACE.hpp"
-#include "WIFI_CONFIG.hpp"
+#include "HC_DEVICES.hpp"
 
 #include <WakeOnLan.h>
 
 #include "WiFi.h"
 #include <ArduinoHttpClient.h>
 
-IPAddress local_IP(HC_IP_DEVICE);
-IPAddress gateway(HC_IP_GATEWAX);
-IPAddress subnet(HC_IP_SUBNET);
-IPAddress dns(HC_IP_DNS);
-String hostname = HOSTNAME;
-
 WiFiUDP UDP;
 WakeOnLan WOL(UDP);
 
-void wifiInit(void)
+wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subnet[], uint8_t ip_dns[], String hostname, 
+                     String ssid, String password)
 {
-  if(!WiFi.config(local_IP, gateway, subnet, dns))
+  IPAddress ipAddress_device(ip_device);
+  IPAddress ipAddress_gateway(ip_gateway);
+  IPAddress ipAddress_subnet(ip_subnet);
+  IPAddress ipAddress_dns(ip_dns);
+
+  wl_status_t wifiReturn = WL_DISCONNECTED;
+
+  if(!WiFi.config(ipAddress_device, ipAddress_gateway, ipAddress_subnet, ipAddress_dns))
   {
     //Serial.println("STA failed to configure");
   }
   else
   {
     WiFi.setHostname(hostname.c_str());
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid.c_str(), password.c_str());
+    
+    for(int i = 0; (i < 50) && (WiFi.status() != WL_CONNECTED); i++)
+    {
+      delay(100);
+    }
+    wifiReturn = WiFi.status();
+
+    if(wifiReturn == WL_CONNECTED)
+    {
+      WOL.calculateBroadcastAddress(WiFi.localIP(), WiFi.subnetMask());
+    }
   }
 
-  WiFi.mode(WIFI_STA);
+  Serial.begin(9600);
+  WiFi.printDiag(Serial);
+  Serial.print("Home Controller IP: ");
+  Serial.println(WiFi.localIP());
 
-  WiFi.begin(SSID_CONFIG, PASSWORD_CONFIG);
-  //Serial.print("Connecting to ");
-  //Serial.print(ssid);
+  return wifiReturn;
+}
 
-  while(WiFi.status() != WL_CONNECTED)
+bool wakeMyPC() 
+{
+  bool retValue = false;
+
+  if(WiFi.status() == WL_CONNECTED)
   {
-    //Serial.print('.');
-    delay(1000);
-  }  
-  WOL.calculateBroadcastAddress(WiFi.localIP(), WiFi.subnetMask());
-
-  //Serial.println(WiFi.localIP());
-  //Serial.print("RRSI: ");
-  //Serial.println(WiFi.RSSI());
-  //Serial.println("Wifi-Setup done.");
+    retValue = WOL.sendMagicPacket(MAC_DESKTOP_CONFIG);
+  }
+  
+  return retValue;
 }
 
-void wakeMyPC() 
+String sendClientRequest(String ipAdress, String clientGet, boolean getBody)
 {
-  WOL.sendMagicPacket(MAC_DESKTOP_CONFIG);
-}
-
-void sendClientRequest(String ipAdress, String clientGet)
-{
+    String body = "";
     WiFiClient wifi;
     HttpClient client = HttpClient(wifi, ipAdress);
 
     client.get(clientGet);
-    client.beginRequest();
-    client.endRequest();
+    if(getBody)
+    {
+      client.responseStatusCode();
+      body = client.responseBody();
+    }
     client.stop();
+
+    return body;
+}
+
+String sendDeviceRequest(tasmota_device device, String clientGet, boolean getBody)
+{
+  sendQueueStatusRequest(device);
+  return sendClientRequest(device.ip, device.power + clientGet, getBody);
+}
+
+String sendDeviceStatusRequest(tasmota_device device)
+{
+  return sendClientRequest(device.ip, device.power, true);
 }
 
 void loopback_request(String request)
 {
-    sendClientRequest("192.168.0.200", request);
+  
 }

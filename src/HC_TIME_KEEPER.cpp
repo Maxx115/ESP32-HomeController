@@ -9,6 +9,8 @@
 /* ---------------- DEFINES / CONSTANTs ---------------- */
 timeStruct localTime;
 
+/* https://ipinfo.io/json */
+
 /* ---------------- LOCAL VARIABLE SECTION ---------------- */
 
 /* ---------------- HELP FUNCTION SECTION ---------------- */
@@ -70,22 +72,23 @@ void trackEvent(void)
 {
   if(localTime.hour == 5 && localTime.minute == 0)
   {
-    sendClientRequest(TASMOTA_NIGHTLAMP, TASMOTA_POWER_1 + TASMOTA_ON);
-    sendClientRequest(TASMOTA_NIGHTLAMP, TASMOTA_POWER_1 + TASMOTA_BLINK);
+    sendDeviceRequest(NIGHTLAMP, TASMOTA_ON);
+    sendDeviceRequest(NIGHTLAMP, TASMOTA_BLINK);
   }
-  else if(localTime.hour == 11 && localTime.minute == 0)
+  else if(localTime.hour == 8 && localTime.minute == 0)
   {
-    sendClientRequest(TASMOTA_NIGHTLAMP, TASMOTA_POWER_1 + TASMOTA_OFF);
+    sendDeviceRequest(NIGHTLAMP, TASMOTA_OFF);
   }
   else if(localTime.hour == 16 && localTime.minute == 0)
   {
-    sendClientRequest(TASMOTA_DESKLAMP, TASMOTA_POWER_1 + TASMOTA_ON);
+    //sendDeviceRequest(DESKLAMP, TASMOTA_ON);
+    DESKLAMP.motion = true;
   }
-  else if(localTime.hour == 20 && localTime.minute == 0)
+  else if(localTime.hour == 20 && localTime.minute == 0) 
   {
-    sendClientRequest(TASMOTA_DESKLAMP, TASMOTA_POWER_1 + TASMOTA_OFF);
+    DESKLAMP.motion = false;
+    sendDeviceRequest(DESKLAMP, TASMOTA_OFF);
   }
-
 }
 
 String getTimeString(void)

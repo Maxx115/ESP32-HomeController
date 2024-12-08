@@ -64,8 +64,6 @@ void shutterControl(char dir, uint8_t val)
     }
 }
 
-
-
 void shutterCMD(String direction, String state)
 {
     sMsg_tx.dir = '-';

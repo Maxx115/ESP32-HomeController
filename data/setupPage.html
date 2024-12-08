@@ -67,16 +67,50 @@
 <div class="flex-container"><!---------------------- flex-container ---------------------->
 
     <div class="container-Connect"><!---------------------- container-Password ---------------------->
-      <label for="SSID">SSID:</label>
-      <input list="SSID_found" class="SSID" id="SSID" name="SSID" requred size="10"/>
-      <datalist id="SSID_found">
-        <option value="Test"></option>
-      </datalist>
+      <br>
+      <table id="myTable">
+        %SSID_LIST%
+    </table>
+    <br>
+    <form id="myForm">
+      <label for="selectedSSID">SSID:</label>
+      <input type="text" id="selectedSSID" name="selectedSSID">
+  </form>
+  <script>
+      document.addEventListener('DOMContentLoaded', (event) => 
+      {
+          const table = document.getElementById('myTable');
+          const input = document.getElementById('selectedSSID');
+
+          table.addEventListener('click', (event) => 
+          {
+              const rows = table.querySelectorAll('tr');
+              rows.forEach(row => row.classList.remove('selected'));
+
+              const clickedRow = event.target.parentNode;
+              clickedRow.classList.add('selected');
+
+              const ssid = clickedRow.cells[1].innerText; // Get the SSID from the first cell 
+              input.value = ssid;
+          });
+      });
+  </script>
       <br>
       <label for="Password">Password:</label>
       <input type="password" id="Password" name="Password" requred size="10"/>  
       <br>
-      <button class="button connect_button" onclick="sendRequest(this, '/wifi?item=wifi_connect')" id="connect_button">Connect</button>
+      <button class="button connect_button" onclick="sendWifiRequest(this)" id="connect_button">Connect</button>
+      <script>
+        function sendWifiRequest(element)
+        {
+          const ssidBox = document.getElementById('selectedSSID');
+          const ssid = ssidBox.value;
+          const pwBox = document.getElementById('Password');
+          const pw = pwBox.value;
+
+          sendRequest(this, "/wifi?item=wifi_connect&ssid=" + ssid + "&password=" + pw);
+        }
+      </script>
     </div><!---------------------- end container-Password ---------------------->
 
 </div><!---------------------- end flex-container ---------------------->

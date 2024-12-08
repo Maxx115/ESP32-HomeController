@@ -33,6 +33,47 @@ String siteProcess(const String& var)
     statement = "server version: ";
     statement += "0.0.5";
   }
+  else if(var == "SSID_LIST")
+  {
+    statement = "";
+    statement += "<thead>";
+    statement += "<tr>";
+
+    statement += "<th>ID</th>";
+    statement += "<th>SSID</th>";
+    statement += "<th>RSSI</th>";
+
+    statement += "</tr>";
+    statement += "</thead>";
+
+    statement += "<tbody>";
+
+    for(int i = 0; i < ssidResult.numNetworks; i++)
+    {
+        statement += "<tr>";
+
+        statement += "<td>";
+        statement += i;
+        statement += "</td>";
+
+        statement += "<td>";
+        statement += ssidResult.ssids[i];
+        statement += "</td>";
+
+        statement += "<td>";
+        statement += ssidResult.rssis[i];
+        statement += "</td>";
+
+        statement += "</tr>";
+
+        if(i >= 5)
+        {
+            break;
+        }
+    }
+
+    statement += "</tbody>";
+  }
 
   return statement;
 }
@@ -52,6 +93,10 @@ void serverInit()
     { 
         request->send(SPIFFS, "/index.html", String(), false, siteProcess);
     });
+    server.on("/setup", HTTP_GET, [](AsyncWebServerRequest *request)
+    { 
+        request->send(SPIFFS, "/setupPage.html", String(), false, siteProcess);
+    });
 
     /*
     * Init CSS-File to be send to browser
@@ -64,6 +109,39 @@ void serverInit()
     /* 
     --------------- Server Actions --------------- 
     */
+
+    server.on("/wifi", HTTP_GET, [](AsyncWebServerRequest *request)
+    { 
+        request->send(200, "text/plain", "OK");
+        request->send(SPIFFS, "/index.html", String(), false, siteProcess);
+        String inputMessage1 = "";
+        String inputMessage2 = "";
+        String inputMessage3 = "";
+
+        if(request->hasParam("item")) 
+        {
+            inputMessage1 = request->getParam("item")->value();
+            
+            if(inputMessage1 == "wifi_connect")
+            {
+                if(request->hasParam("item"))
+                {
+                    inputMessage2 = request->getParam("ssid")->value();
+                }
+                if(request->hasParam("password"))
+                {
+                    inputMessage3 = request->getParam("password")->value();
+                }
+            }
+        }
+
+        Serial.println("WiFi Request Receivced");
+        Serial.print("SSID: ");
+        Serial.println(inputMessage2);
+        Serial.print("Password: ");
+        Serial.println(inputMessage3);
+
+    });
 
     /*
     * Init WOL function on Server request

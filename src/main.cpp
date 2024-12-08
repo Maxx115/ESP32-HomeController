@@ -79,13 +79,15 @@ extern "C" void app_main()
     xTimerStart(xAutoOffScreen_timer, 0);
 
     /* main setup */
+    Serial.begin(9600);
     shutterInit();
+    scanSSID();
     wifiInit();
     serverInit();
     //initTFT(&tft, &touch, TFT_ROTATION, TFT_TEXTSIZE, ILI9341_BLACK, FreeSansBold9pt7b);
 
     /* Task Setup & Startup */
-    //xTaskCreateUniversal(loopTask, "loopTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
+    xTaskCreateUniversal(loopTask, "loopTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
     //xTaskCreateUniversal(touchTask, "touchTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &touchTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
     xTaskCreateUniversal(deviceTask, "deviceTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &deviceTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
     xTaskCreateUniversal(shutterTask, "shutterTask", CONFIG_ARDUINO_LOOP_STACK_SIZE, NULL, 1, &shutterTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);   
@@ -102,6 +104,8 @@ extern "C" void app_main()
 */
 void loopTask(void *pvParameters)
 {
+  //searchSSID();
+
   for(;;)
   {
     vTaskDelay(1000);

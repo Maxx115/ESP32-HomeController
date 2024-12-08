@@ -9,6 +9,57 @@
 WiFiUDP UDP;
 WakeOnLan WOL(UDP);
 
+ScanResult ssidResult;
+
+ScanResult scanSSID()
+{
+  Serial.println("Scan start");
+  int numNetworks = WiFi.scanNetworks();
+  Serial.println("Scan done");
+
+  ssidResult.numNetworks = numNetworks;
+
+  if (numNetworks == 0) 
+  {
+      Serial.println("No networks found");
+      ssidResult.ssids = nullptr;
+  } else 
+  {
+      Serial.print(numNetworks);
+      Serial.println(" networks found");
+      Serial.println("Nr | SSID | RSSI | CH | Encryption");
+
+      // Create a string array to hold the SSIDs
+      ssidResult.ssids = new String[numNetworks];
+      ssidResult.rssis = new int[numNetworks];
+
+      for (int i = 0; i < ssidResult.numNetworks; ++i) 
+      {
+          ssidResult.ssids[i] = WiFi.SSID(i);
+          ssidResult.rssis[i] = WiFi.RSSI(i);
+
+          Serial.printf("%2d | %-32.32s | %4ld | %2ld | ", i + 1, WiFi.SSID(i).c_str(), WiFi.RSSI(i), WiFi.channel(i));
+          switch (WiFi.encryptionType(i)) 
+          {
+              case WIFI_AUTH_OPEN: Serial.print("open"); break;
+              case WIFI_AUTH_WEP: Serial.print("WEP"); break;
+              case WIFI_AUTH_WPA_PSK: Serial.print("WPA"); break;
+              case WIFI_AUTH_WPA2_PSK: Serial.print("WPA2"); break;
+              case WIFI_AUTH_WPA_WPA2_PSK: Serial.print("WPA+WPA2"); break;
+              case WIFI_AUTH_WPA2_ENTERPRISE: Serial.print("WPA2-EAP"); break;
+              case WIFI_AUTH_WPA3_PSK: Serial.print("WPA3"); break;
+              case WIFI_AUTH_WPA2_WPA3_PSK: Serial.print("WPA2+WPA3"); break;
+              case WIFI_AUTH_WAPI_PSK: Serial.print("WAPI"); break;
+              default: Serial.print("unknown");
+          }
+          Serial.println();
+      }
+      Serial.println();
+      WiFi.scanDelete();
+      return ssidResult;
+    }
+}
+
 wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subnet[], uint8_t ip_dns[], String hostname, 
                      String ssid, String password)
 {
@@ -26,7 +77,7 @@ wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subne
   else
   {
     WiFi.setHostname(hostname.c_str());
-    WiFi.mode(WIFI_STA);
+    WiFi.enableSTA(true);
     WiFi.begin(ssid.c_str(), password.c_str());
     
     for(int i = 0; (i < 50) && (WiFi.status() != WL_CONNECTED); i++)
@@ -41,7 +92,6 @@ wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subne
     }
   }
 
-  Serial.begin(9600);
   WiFi.printDiag(Serial);
   Serial.print("Home Controller IP: ");
   Serial.println(WiFi.localIP());

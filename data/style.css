@@ -227,3 +227,20 @@ canvas {display:block;}
   box-sizing: border-box;
   vertical-align: middle;
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #9d0000;
+}
+tr:hover {
+  background-color: #9d0000;
+  cursor: pointer;
+}
+tr.selected {
+  background-color: #9d0000;
+}

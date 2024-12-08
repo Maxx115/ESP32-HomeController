@@ -1,17 +1,16 @@
 #include "HC_WIFI_INTERFACE.hpp"
-#include "WIFI_CONFIG.hpp"
+#include "HC_DEVICES.hpp"
 
 #include <WakeOnLan.h>
 
 #include "WiFi.h"
 #include <ArduinoHttpClient.h>
 
-
-
 WiFiUDP UDP;
 WakeOnLan WOL(UDP);
 
-wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subnet[], uint8_t ip_dns[], String hostname, String ssid, String password)
+wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subnet[], uint8_t ip_dns[], String hostname, 
+                     String ssid, String password)
 {
   IPAddress ipAddress_device(ip_device);
   IPAddress ipAddress_gateway(ip_gateway);
@@ -41,6 +40,11 @@ wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subne
       WOL.calculateBroadcastAddress(WiFi.localIP(), WiFi.subnetMask());
     }
   }
+
+  Serial.begin(9600);
+  WiFi.printDiag(Serial);
+  Serial.print("Home Controller IP: ");
+  Serial.println(WiFi.localIP());
 
   return wifiReturn;
 }

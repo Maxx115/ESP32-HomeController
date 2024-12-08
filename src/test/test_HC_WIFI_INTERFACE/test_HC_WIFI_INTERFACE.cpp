@@ -16,6 +16,8 @@ void test_HC_WIFI_INTERFACE(void)
 {
     test_wifiInit();
     test_wakeMyPC();
+    test_sendDeviceRequest();
+    test_loopback_request();
 }
 
 void test_wifiInit(void)

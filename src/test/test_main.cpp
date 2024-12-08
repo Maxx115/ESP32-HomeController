@@ -15,9 +15,9 @@ void test_main(void)
     Serial.println("Starting Unit Tests...");
 
     //test_tester();
-    //test_HC_DEVICE();
-    //test_HC_WIFI_INTERFACE();
-    test_HC_SUN_TIME();
+    test_HC_DEVICE();
+    test_HC_WIFI_INTERFACE();
+    //test_HC_SUN_TIME();
 
     for(;;){delay(1000);}
 }

@@ -6,6 +6,8 @@
 #include "WiFi.h"
 #include <ArduinoHttpClient.h>
 
+#include "HC_NVM_MAN.hpp"
+
 WiFiUDP UDP;
 WakeOnLan WOL(UDP);
 
@@ -53,11 +55,29 @@ ScanResult scanSSID()
               default: Serial.print("unknown");
           }
           Serial.println();
+          if(i == 10)
+          {
+            break;
+          }
       }
       Serial.println();
       WiFi.scanDelete();
       return ssidResult;
     }
+}
+
+void APstartupMode(void)
+{
+  WiFi.softAP(nvm_read_string(WIFI_NVM, AP_SSID_NVM).c_str(), nvm_read_string(WIFI_NVM, AP_PASSWORD_NVM).c_str());
+  
+  WiFi.printDiag(Serial);
+  Serial.print("Home Controller IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+wl_status_t wifiInit_default(void)
+{
+  return wifiInit(HC_IP_DEVICE, HC_IP_GATEWAY, HC_IP_SUBNET, HC_IP_DNS, HOSTNAME, nvm_read_string(WIFI_NVM, SSID_NVM), nvm_read_string(WIFI_NVM, PASSWORD_NVM));
 }
 
 wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subnet[], uint8_t ip_dns[], String hostname, 
@@ -72,7 +92,8 @@ wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subne
 
   if(!WiFi.config(ipAddress_device, ipAddress_gateway, ipAddress_subnet, ipAddress_dns))
   {
-    //Serial.println("STA failed to configure");
+    Serial.println("STA failed to configure");
+    return WL_CONNECT_FAILED;
   }
   else
   {
@@ -80,21 +101,27 @@ wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subne
     WiFi.enableSTA(true);
     WiFi.begin(ssid.c_str(), password.c_str());
     
-    for(int i = 0; (i < 50) && (WiFi.status() != WL_CONNECTED); i++)
+    for(int i = 0; (i < 3) && (WiFi.status() != WL_CONNECTED); i++)
     {
       delay(100);
     }
+
     wifiReturn = WiFi.status();
-
-    if(wifiReturn == WL_CONNECTED)
+    if(wifiReturn != WL_CONNECTED)
     {
-      WOL.calculateBroadcastAddress(WiFi.localIP(), WiFi.subnetMask());
+      Serial.println("STA failed to connect");
+      //Serial.println(ssid);
+      //Serial.println(password);
+      WiFi.enableSTA(false);
+      WiFi.disconnect(false, true);
+      return wifiReturn;
     }
-  }
 
-  WiFi.printDiag(Serial);
-  Serial.print("Home Controller IP: ");
-  Serial.println(WiFi.localIP());
+    WOL.calculateBroadcastAddress(WiFi.localIP(), WiFi.subnetMask());
+    WiFi.printDiag(Serial);
+    Serial.print("Home Controller IP: ");
+    Serial.println(WiFi.localIP());
+  }
 
   return wifiReturn;
 }
@@ -132,6 +159,11 @@ String sendDeviceRequest(tasmota_device device, String clientGet, boolean getBod
 {
   sendQueueStatusRequest(device);
   return sendClientRequest(device.ip, device.power + clientGet, getBody);
+}
+
+String sendDeviceRequest(String deviceName, String clientGet, boolean getBody)
+{
+  return sendDeviceRequest(name2device(deviceName), clientGet);;
 }
 
 String sendDeviceStatusRequest(tasmota_device device)

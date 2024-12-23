@@ -11,7 +11,6 @@
 
 void test_main(void)
 {
-    Serial.begin(9600);
     Serial.println("Starting Unit Tests...");
 
     //test_tester();

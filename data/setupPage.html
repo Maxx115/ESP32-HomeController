@@ -100,17 +100,40 @@
       <input type="password" id="Password" name="Password" requred size="10"/>  
       <br>
       <button class="button connect_button" onclick="sendWifiRequest(this)" id="connect_button">Connect</button>
+      <div style="display: none;" id="ciphertext"></div>
+      <script src="forge.min.js"></script>
       <script>
         function sendWifiRequest(element)
         {
           const ssidBox = document.getElementById('selectedSSID');
           const ssid = ssidBox.value;
-          const pwBox = document.getElementById('Password');
-          const pw = pwBox.value;
+          encryptMessage(document.getElementById('Password').value);
+          const pwBox = document.getElementById("ciphertext");
+          const pw = encodeURIComponent(pwBox.textContent);
 
           sendRequest(this, "/wifi?item=wifi_connect&ssid=" + ssid + "&password=" + pw);
         }
-      </script>
+
+        function encryptMessage() {
+            // Example public key in PEM format
+            const publicKeyPem = %PUBLIC_KEY%;
+
+            const plaintext = document.getElementById("Password").value;
+
+            // Import the public key
+            const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+
+            // Encrypt the message
+            const encrypted = publicKey.encrypt(plaintext, 'RSA-OAEP', {
+                md: forge.md.sha256.create()
+            });
+
+            // Convert ciphertext to base64 and display
+            const base64Ciphertext = forge.util.encode64(encrypted);
+            console.log(base64Ciphertext);
+            document.getElementById("ciphertext").textContent = base64Ciphertext;
+        }
+    </script>
     </div><!---------------------- end container-Password ---------------------->
 
 </div><!---------------------- end flex-container ---------------------->

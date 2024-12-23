@@ -7,7 +7,7 @@
 #include "test_tester/test_tester.hpp"
 #include "test_HC_DEVICES/test_HC_DEVICE.hpp"
 #include "test_HC_WIFI_INTERFACE/test_HC_WIFI_INTERFACE.hpp"
-#include "test_HC_SUN_TIME/test_HC_SUN_TIME.hpp"
+//#include "test_HC_SUN_TIME/test_HC_SUN_TIME.hpp"
 
 void test_main(void)
 {

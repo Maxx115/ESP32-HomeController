@@ -66,25 +66,6 @@ void fauxmoTask(void *pvParameter)
                 sendDeviceRequest(stateChange.deviceName, (stateChange.state ? TASMOTA_ON : TASMOTA_OFF));
             }
 
-            /*
-            if(stateChange.deviceName == BCPU.DeviceName)
-            {
-                sendDeviceRequest(stateChange.deviceName, (stateChange.state ? TASMOTA_ON : TASMOTA_OFF));
-            }
-            else if(stateChange.deviceName == LIVINGROOMLAMP.DeviceName)
-            {
-                sendDeviceRequest(LIVINGROOMLAMP, (stateChange.state ? TASMOTA_ON : TASMOTA_OFF));
-            }
-            else if(stateChange.deviceName == PRINTER.DeviceName)
-            {
-                sendDeviceRequest(PRINTER, (stateChange.state ? TASMOTA_ON : TASMOTA_OFF));
-            }
-            else if(stateChange.deviceName == COMPUTER.DeviceName)
-            {   
-                if(stateChange.state) wakeMyPC();
-            }
-            */
-
         }
 
     }

@@ -1,7 +1,7 @@
 #include "HC_SERVER_APPLICATION.hpp"
 
 #include "HC_DEVICES.hpp"
-#include "HC_SHUTTER_CONTROL.hpp"
+//#include "HC_SHUTTER_CONTROL.hpp"
 #include "HC_WIFI_INTERFACE.hpp"
 
 #include "HC_time_keeper.hpp"
@@ -260,7 +260,7 @@ void serverInit(bool setupStatus)
             inputMessage1 = request->getParam("dir")->value();
             inputMessage2 = request->getParam("status")->value();
 
-            shutterCMD(inputMessage1, inputMessage2);
+            //shutterCMD(inputMessage1, inputMessage2);
         }
         
         request->send(200, "text/plain", "OK");

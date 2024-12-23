@@ -16,6 +16,8 @@
 #include "WIFI_CONFIG.hpp"
 
 #define GET_BODY true
+#define SETUP_AP_SSID "ESP_HomeController"
+#define SETUP_AP_PASSWORD "123456789"
 
 struct ScanResult 
 {

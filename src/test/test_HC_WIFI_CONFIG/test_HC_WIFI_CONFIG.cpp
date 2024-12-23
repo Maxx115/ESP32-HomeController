@@ -3,7 +3,6 @@
 #include "test/Tester.hpp"
 #include "self_arduino.hpp"
 
-#include "HC_WIFI_CONFIG.hpp"
 
 /*
 

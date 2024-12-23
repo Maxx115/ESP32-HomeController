@@ -18,8 +18,7 @@
 #define SHUTTER_OFF HIGH
 #define SHUTTER_ON LOW
 
-void shutterInit();
-void initShutter(void);
+void shutterInit(void);
 void shutterCMD(String direction, String state);
 
 void shutterTask(void *pvParameter);

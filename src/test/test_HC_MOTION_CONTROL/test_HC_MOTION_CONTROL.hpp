@@ -1,9 +1,0 @@
-
-#ifndef TEST_HC_MOTION_CONTROL
-#define TEST_HC_MOTION_CONTROL
-
-#include "HC_MOTION_CONTROL.hpp"
-
-void test_HC_MOTION_CONTROL(void);
-
-#endif /* TEST_HC_MOTION_CONTROL */

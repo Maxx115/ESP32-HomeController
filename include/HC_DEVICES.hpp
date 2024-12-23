@@ -11,7 +11,12 @@
 
 #include "self_arduino.hpp"
 
-#define COUNT_DEVICES 5
+extern uint8_t HC_IP_DEVICE[];
+extern String HC_IP_DEVICE_STR;
+extern uint8_t HC_IP_GATEWAY[];
+extern uint8_t HC_IP_SUBNET[];
+extern uint8_t HC_IP_DNS[];
+extern String HOSTNAME;
 
 #define MOTION_ACTIVE true
 #define MOTION_INACTIVE false
@@ -20,6 +25,8 @@ const String TASMOTA_IP_PRINTER = "192.168.0.34";
 const String TASMOTA_IP_BCPU_GLOBE = "192.168.0.23";
 const String TASMOTA_IP_NIGHTLAMP = "192.168.0.35";
 const String TASMOTA_IP_DESKLAMP = "192.168.0.36";
+const String TASMOTA_IP_LIVINGROOMLAMP = "192.168.0.24";
+const String TASMOTA_IP_COMPUTER = "192.168.0.8";
 
 const String TASMOTA_CMD_START = "/cm?cmnd=";
 
@@ -39,11 +46,15 @@ const String TASMOTA_BLINK_TIME = "BlinkTime%20";
 
 enum device_id 
 {
-    PRINTER_ID = 0,
+    NONE_ID = 0,
+    PRINTER_ID,
     BCPU_ID,
     GLOBE_ID,
     NIGHTLAMP_ID,
-    DESKLAMP_ID
+    DESKLAMP_ID,
+    LIVINGROOMLAMP_ID,
+    COMPUTER_ID,
+    END_ID
 };
 struct tasmota_device
 {
@@ -52,13 +63,17 @@ struct tasmota_device
     String power;
     String status;
     boolean motion;
+    String DeviceName;
 };
 
+extern tasmota_device NONE;
 extern tasmota_device PRINTER;
 extern tasmota_device BCPU;
 extern tasmota_device GLOBE;
 extern tasmota_device NIGHTLAMP;
 extern tasmota_device DESKLAMP;
+extern tasmota_device LIVINGROOMLAMP;
+extern tasmota_device COMPUTER;
 
 void init_deviceTask(int queSize);
 
@@ -66,6 +81,9 @@ String getTasmotaStatus(String body);
 
 String requestDeviceStatus(tasmota_device device);
 bool requestAllStatus(void);
+
+tasmota_device name2device(String deviceName);
+tasmota_device getNextDevice(device_id device = NONE_ID);
 
 BaseType_t sendQueueStatusRequest(tasmota_device device);
 void deviceTask(void *pvParameter);

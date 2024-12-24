@@ -101,9 +101,9 @@ wl_status_t wifiInit(uint8_t ip_device[], uint8_t ip_gateway[], uint8_t ip_subne
     WiFi.enableSTA(true);
     WiFi.begin(ssid.c_str(), password.c_str());
     
-    for(int i = 0; (i < 3) && (WiFi.status() != WL_CONNECTED); i++)
+    for(int i = 0; (i < 5) && (WiFi.status() != WL_CONNECTED); i++)
     {
-      delay(100);
+      delay(1000);
     }
 
     wifiReturn = WiFi.status();
@@ -132,7 +132,15 @@ bool wakeMyPC()
 
   if(WiFi.status() == WL_CONNECTED)
   {
-    retValue = WOL.sendMagicPacket(MAC_DESKTOP_CONFIG);
+    if(nvm_contains(WIFI_NVM, WOL_MAC_NVM))
+    {
+      retValue = WOL.sendMagicPacket(nvm_read_string(WIFI_NVM, WOL_MAC_NVM));
+    }
+    else
+    {
+      Serial.println("WOL_MAC could not be accessed!");
+    }
+    //retValue = WOL.sendMagicPacket(MAC_DESKTOP_CONFIG);
   }
   
   return retValue;

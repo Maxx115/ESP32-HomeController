@@ -100,8 +100,20 @@
       <input type="password" id="Password" name="Password" requred size="10"/>  
       <br>
       <button class="button connect_button" onclick="sendWifiRequest(this)" id="connect_button">Connect</button>
+      <br>
+      <label for="wolMAC">WOL-MAC:</label>
+      <input type="text" id="wolMAC" name="wolMAC"><br>
+      <button class="button connect_button" onclick="sendWOLRequest(this)" id="wolMAC_button">WOL-MAC</button>
       <div style="display: none;" id="ciphertext"></div>
       <script src="forge.min.js"></script>
+      <script>
+        function sendWOLRequest(element)
+        {
+          const wolBox = document.getElementById('wolMAC');
+          const wolMAC = wolBox.value;
+          sendRequest(this, "/wifi?item=wolMAC&mac="+ wolMAC);
+        }
+      </script>
       <script>
         function sendWifiRequest(element)
         {

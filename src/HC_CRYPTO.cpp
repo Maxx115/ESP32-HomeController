@@ -8,6 +8,13 @@
 
 #include "HC_Crypto.hpp"
 
+#include "mbedtls/rsa.h"
+#include "mbedtls/pk.h"
+#include "mbedtls/entropy.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/error.h"
+#include "mbedtls/base64.h"
+
 char private_key[2048];
 char public_key[1024];
 

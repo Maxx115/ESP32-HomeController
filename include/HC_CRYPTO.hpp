@@ -10,12 +10,6 @@
 #define HC_CRYPTO
 
 #include <Arduino.h>
-#include "mbedtls/rsa.h"
-#include "mbedtls/pk.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
-#include "mbedtls/error.h"
-#include "mbedtls/base64.h"
 
 //extern char private_key[2048];
 extern char public_key[1024];

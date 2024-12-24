@@ -178,18 +178,37 @@ void serverInit(bool setupStatus)
                 {
                     inputMessage3 = request->getParam("password")->value();
                 }
+                if((inputMessage2 != "") && (inputMessage3 != ""))
+                {
+                    Serial.println("WiFi Request Receivced");
+                    Serial.print("SSID: ");
+                    Serial.println(inputMessage2);
+                    Serial.print("Password: ");
+                    Serial.println(inputMessage3);
+                    
+                    nvm_write_string(WIFI_NVM, SSID_NVM, inputMessage2);
+                    nvm_write_string(WIFI_NVM, PASSWORD_NVM, cryptoDecrypt_Server(inputMessage3.c_str()));
+                }
+                else
+                {
+                    Serial.println("SSID or Password could not be received, nothing was stored on NVM");
+                }
+            }
+            else if(inputMessage1 == "wolMAC")
+            {
+                if(request->hasParam("mac"))
+                {
+                    inputMessage2 = request->getParam("mac")->value();
+                }
+                if(inputMessage2 != "")
+                {
+                    Serial.print("WOL MAC address: ");
+                    Serial.println(inputMessage2);
+
+                    nvm_write_string(WIFI_NVM, WOL_MAC_NVM, inputMessage2);
+                }
             }
         }
-
-        Serial.println("WiFi Request Receivced");
-        Serial.print("SSID: ");
-        Serial.println(inputMessage2);
-
-        Serial.print("Password: ");
-        Serial.println(inputMessage3);
-        
-        nvm_write_string(WIFI_NVM, SSID_NVM, inputMessage2);
-        nvm_write_string(WIFI_NVM, PASSWORD_NVM, cryptoDecrypt_Server(inputMessage3.c_str()));
     });
 
     /*
